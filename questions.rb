@@ -1,62 +1,40 @@
-require_relative('questions')
+@question_types = {add: 'plus', subtract: 'minus', multiply: 'times', divide: 'divided by'}
 
-@max_lives = 3
-@player_one = {name: nil, lives: nil}
-@player_two = {name: nil, lives: nil}
+# Generate a skill-testing arithmetic question
+# This function will return a hash that includes
+# the text of the question, the arithmetic operation being tested
+# the first and second operands on the aritmetic operation
+def generate_question(player_name)
+  question = {}
+  which_type = rand(0..(@question_types.size - 1))
+  first_operand = rand(1..20)
+  second_operand = rand(1..20)
+  question_type = @question_types.keys[which_type]
+  question_text = "#{player_name}, what is #{first_operand} #{@question_types[question_type]} #{second_operand}? "
 
-def prompt_for_name(default_player_name)
-  print "Please enter name for #{default_player_name}: "
-  gets.chomp
+  question[:text] = question_text
+  question[:type] = question_type
+  question[:first_num] = first_operand
+  question[:second_num] = second_operand
+
+  question
 end
 
-def question_round(player)
-  question_to_ask = generate_question(player[:name])
-  puts
-  puts
-  print get_question_text(question_to_ask)
-  answer = gets.chomp.to_i
-  correct_answer = verify_answer?(question_to_ask, answer)
-
-  if correct_answer
-    puts "Correct, #{player[:name]}!"
-    0
-  else
-    puts "Sorry that was incorrect, #{player[:name]}"
-    1
+# Verify an answer to the skill-testing arithmetic question
+def verify_answer?(question, answer)
+  case question[:type]
+  when :add
+    question[:first_num] + question[:second_num] == answer
+  when :subtract
+    question[:first_num] - question[:second_num] == answer
+  when :multiply
+    question[:first_num] * question[:second_num] == answer
+  when :divide
+    question[:first_num] / question[:second_num] == answer
   end
 end
 
-def display_scores(player1, player2)
-  player_one_wins = player1[:lives] > player2[:lives]
-  player_two_wins = !player_one_wins
-
-  print "Player 1 (#{player1[:name]}): #{player1[:lives]}"
-  print " (WINNER)" if player_one_wins
-  puts
-  print "Player 2 (#{player2[:name]}): #{player2[:lives]}"
-  print " (WINNER)" if player_two_wins
-  puts
-  puts
+def get_question_text(question)
+  question[:text]
 end
 
-quit_now_tag = "n"
-play_again = ""
-until play_again == quit_now_tag
-  @player_one[:lives] = @max_lives
-  @player_two[:lives] = @max_lives
-  @player_one[:name] = prompt_for_name('Player 1') if @player_one[:name].nil?
-  @player_two[:name] = prompt_for_name('Player 2') if @player_two[:name].nil?
-
-  until @player_one[:lives] == 0 || @player_two[:lives] == 0
-    @player_one[:lives] -= question_round(@player_one)
-    @player_two[:lives] -= question_round(@player_two)
-  end
-
-  display_scores(@player_one, @player_two)
-  puts
-  play_again_tag = "y"
-  print "Do you want to play again? (#{play_again_tag}/#{quit_now_tag}) "
-  play_again = gets.chomp
-end
-
-puts "Thanks for playing!"
