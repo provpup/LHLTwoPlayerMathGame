@@ -48,7 +48,7 @@ class MathGame
   def play_round    
     until @player_one.dead? || @player_two.dead?
       question_round(@player_one)
-      question_round(@player_two)
+      question_round(@player_two) unless @player_one.dead?
     end
 
     display_scores
